@@ -1,1 +1,133 @@
-Hello World
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+
+<body>
+
+<h6 hidden>Please validate date</h6>
+<input type="date" id="date"/> 
+<input type="button" id="button" value="Enter"/>
+</br></br>
+<table border="1">
+  <tr>
+    <th>Academic Career</th>
+  </tr>
+  <tr>
+    <th>Academic Year</th> 
+  </tr>
+  <tr>
+    <th>Begin Date</th>
+  </tr>
+  <tr>    
+    <th>Cancel Deadline</th>
+  </tr>
+  <tr> 
+    <th>Enroll Deadline</th>
+  </tr>
+  <tr>
+    <th>Grading Deadline</th>
+  </tr>
+  <tr>
+    <th>End Date</th>
+  </tr>
+  <tr>
+    <th>Self Service Begin Date</th>
+  </tr>
+  <tr>
+    <th>Self Service End Date</th>
+  </tr>
+  <tr>
+    <th>Term Start Date</th>
+  </tr>
+  <tr>
+    <th>Term End Date</th>
+  </tr>
+  <tr>
+    <th>Drop Deleted From Record Deadline</th>    
+  </tr>
+  <tr>
+    <th>Drop Retained On Record Deadline</th>
+  </tr>
+  <tr>
+    <th>Sixty Percent Point</th>
+  </tr>
+  <tr>
+    <th>Weeks of Instruction</th>
+  </tr>
+  <tr>
+    <th>Withdraw No Penalty Deadline</th>
+  </tr>
+  <tr>
+    <th>Withdraw With Penalty Deadline</th>
+  </tr>
+</table>
+<style>
+td {text-align: center;}
+th, td {height:50px; width: 200px; display:inline-block;}
+table {overflow-x:auto;}
+</style>
+<p id="data"></p>
+<script>
+$(document).ready(function(){
+        var response = null;
+
+        $("#button").click(function(){
+            dates = $("#date").val();
+            fetch(dates);
+        });
+
+        var fetch = function(value) {
+            link = "https://apis.berkeley.edu/uat/sis/v1/terms?as-of-date=" + value;
+            $.ajax({
+                type: "GET",
+                url: link,
+                headers: {
+                    "app_id": "1532d3ef", 
+                    "app_key": "f802966159752dba4f6ded00f37e7830",
+                    Accept: "application/json"
+                },
+                success: function(data){
+                    response = data["apiResponse"]["response"];
+                    parseData(response);
+                },
+                failure: function(error){
+                    alert("Unable to fetch info for current date.");
+                }
+            });    
+        }
+
+        var populate = function(term, index){
+            var dates = [];
+            dates.push(term.academicCareer.description);
+            dates.push(term.academicYear);
+            dates.push(term.beginDate);
+            dates.push(term.cancelDeadline);
+            dates.push(term.fullyEnrolledDeadline);
+            dates.push(term.fullyGradedDeadline);
+            dates.push(term.endDate);
+            dates.push(term.selfServicePlanBeginDate);
+            dates.push(term.selfServicePlanEndDate);
+            sessions = term.sessions[0];
+            dates.push(sessions.beginDate);
+            dates.push(sessions.endDate);
+            dates.push(sessions.dropDeletedFromRecordDeadline);
+            dates.push(sessions.dropRetainedOnRecordDeadline);
+            dates.push(sessions.sixtyPercentPoint);
+            dates.push(sessions.weeksOfInstruction);
+            dates.push(sessions.withdrawNoPenaltyDeadline);
+            dates.push(sessions.withdrawWithPenaltyDeadline);
+            rows = $("table tr");
+            for (var i=0; i < rows.length; i++){
+                row = rows[i];
+                $(row).append("<td>" + dates[i] + "</td>");
+            }
+        };
+
+        var parseData = function(data){
+                this.response = data.terms;
+                $("td").remove()                
+                this.response.forEach(populate);
+        };
+});
+</script>
+</body>
